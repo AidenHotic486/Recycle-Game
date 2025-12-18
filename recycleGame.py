@@ -22,8 +22,9 @@ animations = []
 
 
 def randomOrder(objAmount):       # create the random order of 1 bag and 2 scrap items in a random order
-    global scrapObjects, hasBag
-
+    global scrapObjects, hasBag, currentObjects
+    hasBag = False
+    currentObjects.clear()
     for i in range(0, objAmount, 1):
         randNum = random.randint(1, 4)
         if randNum == 1:
@@ -53,93 +54,69 @@ def onGameOver():
     global gameOver
     gameOver = True
     print("Game Over")
-    pass
+    
+
+def startRound():
+    global spawnedActors, currentObjects
+    spawnedActors.clear()
+    randomOrder(level + 5)
+
+    index = 0
+    for objectName in currentObjects:
+        spawnObject(objectName, 150 + index, 75)
+        index += 75
+    moveActors(spawnedActors)
 
 def nextRound(): #Spawn items when a round starts
-    global currentObjects, spawnedActors, level, index, hasBag, animations
-    if level == 5:
-        onGameOver()
-    else:
-        print("Next Round Starting")
-        hasBag = False
-        level += 1
-        currentObjects.clear()
-        spawnedActors.clear()
-        animations.clear()
-        print(level)
+    global level
+    
+    print("Next Round Starting")
+    
+    level += 1
+    startRound()
 
-        #print(currentObjects, spawnedActors, level)
-
-        # randomOrder(level + 5)
-
-        # for objectName in currentObjects:
-        #     spawnObject(objectName, 150 + index, 75)
-        #     index += 75
-        # moveActors(spawnedActors)
-        # index = 0
-
-        # print(currentObjects, spawnedActors, level)
-        # #time.sleep(0.1)
 
 def on_mouse_down(pos):
     global spawnedActors
-    
-
-    for char in spawnedActors:
-        if char.collidepoint(pos):
-            if "paperimg" in char.image:
-                print(char.image)
-                nextRound()
-            else:
-                onGameOver()
+    if gameOver:
+        return
+    else:
+        for char in spawnedActors:
+            if char.collidepoint(pos):
+                if "paperimg" in char.image:
+                    print(char.image)
+                    nextRound()
+                else:
+                    onGameOver()
         
 
-
-
-
-
-
-    
 
 def moveActors(chars):
     global animations
-    
+    animations.clear()
     for char in chars:
-
-        
         #(char.pos)
+        
         char.anchor = ("center", "bottom")
         animation = animate(char, duration = 5, on_finished = onGameOver, y = 600)
         animations.append(animation)
 
-        #print(animations)
-        #char.pos = (char.x, char.y - 50)
-        #print(char.pos)
-        #actor.draw()
-
-
-randomOrder(5)
 
 def draw():
     global spawnedActors, currentObjects
 
     screen.blit("bground", (0,0))
-    #spawnObject("bottleimg", 500, 300)
     
     index = 0
     for object in spawnedActors:
         object.draw()
-        #spawnObject(object, 150 + index, 75)
-        #index += 75
-index = 0
-for objectName in currentObjects:
-    spawnObject(objectName, 150 + index, 75)
-    index += 75
-moveActors(spawnedActors)
-index = 0
+        
+
 def update():
-    global spawnedActors, level
-    randomOrder(level + 5)
+    global spawnedActors, level, gameOver
+    if not spawnedActors and not gameOver:
+        startRound()
+
    
 
     
