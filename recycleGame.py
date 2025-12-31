@@ -1,9 +1,5 @@
 # create a game where various items spawn and move down. Player must click ONLY the paper bag. Speed and amount of items should increase over time
 
-# Acomplish Today
-#1. Spawn paper ag randomly within the list of scrap -- also fix mass spawning
-#2. Force the scrap to move dow nthe screen at a fixed rate
-#3. If the items get below the bottom of the screen .. (Do something)
 import pgzrun
 import time
 import random
@@ -18,6 +14,7 @@ currentObjects = []
 spawnedActors = []
 gameOver = False
 animations = []
+roundActive = True
 
 
 
@@ -51,15 +48,28 @@ def spawnObject(object, posX, posY): # spawn a given image as a actor at a given
     return obj
 
 def onGameOver():
-    global gameOver
-    gameOver = True
-    print("Game Over")
+    global gameOver, roundActive
+    if gameOver and not roundActive:
+        return
+    else:
+        gameOver = True
+        roundActive = False
+        print("Game Over")
     
 
 def startRound():
-    global spawnedActors, currentObjects
+    global spawnedActors, currentObjects, animations, gameOver, roundActive
+
+    for anim in animations:
+        anim.stop()
+
+    animations.clear()
+    currentObjects.clear()
     spawnedActors.clear()
+    gameOver = False
+    roundActive = True
     randomOrder(level + 5)
+    
 
     index = 0
     for objectName in currentObjects:
@@ -77,7 +87,7 @@ def nextRound(): #Spawn items when a round starts
 
 
 def on_mouse_down(pos):
-    global spawnedActors
+    global spawnedActors, gameOver
     if gameOver:
         return
     else:
@@ -88,6 +98,7 @@ def on_mouse_down(pos):
                     nextRound()
                 else:
                     onGameOver()
+                break
         
 
 
